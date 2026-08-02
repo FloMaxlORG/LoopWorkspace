@@ -6453,6 +6453,9 @@
         }
       }
     },
+    "Allow nearby Bluetooth devices to receive Loop data." : {
+      "comment" : "The description text for the Bluetooth data sharing switch"
+    },
     "Amount Consumed" : {
       "comment" : "Label for carb quantity entry row on carb entry screen",
       "localizations" : {
@@ -9028,6 +9031,9 @@
           }
         }
       }
+    },
+    "Bluetooth Data Sharing" : {
+      "comment" : "The title text for the Bluetooth data sharing switch"
     },
     "Bluetooth Off Alert" : {
       "comment" : "Bluetooth off alert title",

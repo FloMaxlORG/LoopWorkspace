@@ -168,6 +168,17 @@ public struct SettingsView: View {
             set: { self.viewModel.closedLoopPreference = $0 }
         )
     }
+    
+    private var bleToggleState: Binding<Bool> {
+        Binding(
+            get: {
+                BLESettings.isEnabled
+            },
+            set: { enabled in
+                BLEManager.shared.setEnabled(enabled)
+            }
+        )
+    }
 }
 
 extension String: Identifiable {
@@ -211,7 +222,26 @@ extension SettingsView {
                 .fixedSize(horizontal: false, vertical: true)
             }
             .disabled(!viewModel.isOnboardingComplete || !viewModel.isClosedLoopAllowed)
+            
+            Toggle(isOn: bleToggleState) {
+                        VStack(alignment: .leading) {
+                            Text(
+                                "Bluetooth Data Sharing",
+                                comment: "The title text for the Bluetooth data sharing switch"
+                            )
+                            .padding(.vertical, 3)
+
+                            DescriptiveText(
+                                label: NSLocalizedString(
+                                    "Allow nearby Bluetooth devices to receive Loop data.",
+                                    comment: "The description text for the Bluetooth data sharing switch"
+                                )
+                            )
+                        }
+                        .fixedSize(horizontal: false, vertical: true)
+                    }
         }
+        
     }
     
     private var softwareUpdateSection: some View {

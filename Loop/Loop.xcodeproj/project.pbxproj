@@ -592,6 +592,7 @@
 		EE3B8CAB301A47D0001ACD6E /* BLEUUIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3B8CAA301A47C7001ACD6E /* BLEUUIDs.swift */; };
 		EE3B8CAD301A47E8001ACD6E /* BLECharacteristic.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3B8CAC301A47D5001ACD6E /* BLECharacteristic.swift */; };
 		EE3B8CAF301A47F7001ACD6E /* LoopLiveData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3B8CAE301A47F1001ACD6E /* LoopLiveData.swift */; };
+		EE57F61C301BA286000CE99E /* BLESettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE57F61B301BA283000CE99E /* BLESettings.swift */; };
 		FADE0001000000000000DE02 /* DevelopmentBranchAlerter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADE0001000000000000DE01 /* DevelopmentBranchAlerter.swift */; };
 /* End PBXBuildFile section */
 
@@ -1412,6 +1413,7 @@
 		EE3B8CAA301A47C7001ACD6E /* BLEUUIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEUUIDs.swift; sourceTree = "<group>"; };
 		EE3B8CAC301A47D5001ACD6E /* BLECharacteristic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLECharacteristic.swift; sourceTree = "<group>"; };
 		EE3B8CAE301A47F1001ACD6E /* LoopLiveData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopLiveData.swift; sourceTree = "<group>"; };
+		EE57F61B301BA283000CE99E /* BLESettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLESettings.swift; sourceTree = "<group>"; };
 		F5D9C01727DABBE0002E48F6 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Intents.strings; sourceTree = "<group>"; };
 		F5D9C01C27DABBE1002E48F6 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Main.strings; sourceTree = "<group>"; };
 		F5D9C01E27DABBE2002E48F6 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -2681,6 +2683,7 @@
 				EE3B8CAA301A47C7001ACD6E /* BLEUUIDs.swift */,
 				EE3B8CAC301A47D5001ACD6E /* BLECharacteristic.swift */,
 				EE3B8CAE301A47F1001ACD6E /* LoopLiveData.swift */,
+				EE57F61B301BA283000CE99E /* BLESettings.swift */,
 				EE3B8CB0301A47FE001ACD6E /* Extensions */,
 			);
 			path = Bluetooth;
@@ -3486,6 +3489,7 @@
 				B4E202302661063E009421B5 /* AutomaticDosingStatus.swift in Sources */,
 				C191D2A125B3ACAA00C26C0B /* DosingStrategySelectionView.swift in Sources */,
 				A977A2F424ACFECF0059C207 /* CriticalEventLogExportManager.swift in Sources */,
+				EE57F61C301BA286000CE99E /* BLESettings.swift in Sources */,
 				89CA2B32226C18B8004D9350 /* TestingScenariosTableViewController.swift in Sources */,
 				43E93FB71E469A5100EAB8DB /* HKUnit.swift in Sources */,
 				43C05CAF21EB2C24006FB252 /* NSBundle.swift in Sources */,
@@ -4453,6 +4457,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(APPICON_NAME)";
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = "$(LOOP_ENTITLEMENTS)";
 				CODE_SIGN_IDENTITY = "$(LOOP_CODE_SIGN_IDENTITY_DEBUG)";
 				CODE_SIGN_STYLE = "$(LOOP_CODE_SIGN_STYLE)";
@@ -4483,6 +4488,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = "$(APPICON_NAME)";
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = "$(LOOP_ENTITLEMENTS)";
 				CODE_SIGN_IDENTITY = "$(LOOP_CODE_SIGN_IDENTITY_RELEASE)";
 				CODE_SIGN_STYLE = "$(LOOP_CODE_SIGN_STYLE)";
