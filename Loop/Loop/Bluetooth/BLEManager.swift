@@ -17,9 +17,23 @@ final class BLEManager: NSObject {
 
     private var peripheralManager: CBPeripheralManager!
     private var glucoseCharacteristic: CBMutableCharacteristic?
+
+    private var liveDataCharacteristic: CBMutableCharacteristic?
+
+    private var currentLiveData = LoopLiveData(
+        glucose: 125,
+        trend: .flat,
+        delta: 2,
+        iobHundredths: 145,
+        cob: 18,
+        predictedGlucose: 118,
+        loopClosed: true,
+        timestamp: Date()
+    )
+
+    private var pendingNotification: Data?
+    
     private var isServiceAdded = false
-    // Test variable
-    private var currentGlucose: UInt16 = 123
     
     private override init() {
         super.init()
@@ -47,6 +61,17 @@ final class BLEManager: NSObject {
             disableBLE()
         }
     }
+    
+    func updateLiveData(_ liveData: LoopLiveData) {
+        currentLiveData = liveData
+
+        guard BLESettings.isEnabled else {
+            return
+        }
+
+        sendCurrentLiveDataNotification()
+    }
+    
 }
 
 // MARK: - CBPeripheralManagerDelegate
@@ -127,28 +152,89 @@ extension BLEManager: CBPeripheralManagerDelegate {
         _ peripheral: CBPeripheralManager,
         didReceiveRead request: CBATTRequest
     ) {
-        
-        print("didReceiveRead called for \(request.characteristic.uuid.uuidString)")
-        
-        guard request.characteristic.uuid == BLEUUIDs.glucose else {
+        print(
+            "BLE read request received for " +
+            request.characteristic.uuid.uuidString
+        )
+
+        guard request.characteristic.uuid == BLEUUIDs.liveData else {
             peripheral.respond(
                 to: request,
                 withResult: .attributeNotFound
             )
             return
         }
-        var glucose = currentGlucose.littleEndian
-        let data = Data(
-            bytes: &glucose,
-            count: MemoryLayout<UInt16>.size
-        )
-        request.value = data
         
+        let packet = currentLiveData.encoded()
+
+        guard request.offset >= 0, request.offset < packet.count else {
+            peripheral.respond(
+                to: request,
+                withResult: .invalidOffset
+            )
+            return
+        }
+
+        request.value = packet.subdata(
+            in: request.offset..<packet.count
+        )
+
         peripheral.respond(
             to: request,
             withResult: .success
         )
-        print("BLE glucose read: \(currentGlucose) mg/dL")
+
+        print("BLE read returned \(packet.count) bytes")
+    }
+    
+    func peripheralManagerIsReady(
+        toUpdateSubscribers peripheral: CBPeripheralManager
+    ) {
+        guard
+            let packet = pendingNotification,
+            let liveDataCharacteristic
+        else {
+            return
+        }
+
+        let wasQueued = peripheral.updateValue(
+            packet,
+            for: liveDataCharacteristic,
+            onSubscribedCentrals: nil
+        )
+
+        if wasQueued {
+            pendingNotification = nil
+            print("Pending BLE notification sent")
+        }
+    }
+    
+    func peripheralManager(
+        _ peripheral: CBPeripheralManager,
+        central: CBCentral,
+        didSubscribeTo characteristic: CBCharacteristic
+    ) {
+        print(
+            "BLE central subscribed to " +
+            characteristic.uuid.uuidString
+        )
+
+        guard characteristic.uuid == BLEUUIDs.liveData else {
+            return
+        }
+
+        sendCurrentLiveDataNotification()
+    }
+
+    func peripheralManager(
+        _ peripheral: CBPeripheralManager,
+        central: CBCentral,
+        didUnsubscribeFrom characteristic: CBCharacteristic
+    ) {
+        print(
+            "BLE central unsubscribed from " +
+            characteristic.uuid.uuidString
+        )
     }
 }
 
@@ -185,46 +271,47 @@ private extension BLEManager {
         peripheralManager.stopAdvertising()
         peripheralManager.removeAllServices()
 
-        glucoseCharacteristic = nil
+        liveDataCharacteristic = nil
+        pendingNotification = nil
         isServiceAdded = false
     }
 
     func setupService() {
+        
         guard BLESettings.isEnabled else {
-            return
-        }
+                return
+            }
 
-        guard peripheralManager.state == .poweredOn else {
-            return
-        }
+            guard peripheralManager.state == .poweredOn else {
+                return
+            }
 
-        print("setupService() called")
+            print("setupService() called")
 
-        peripheralManager.stopAdvertising()
-        peripheralManager.removeAllServices()
-
+            peripheralManager.stopAdvertising()
+            peripheralManager.removeAllServices()
+        
         let characteristic = CBMutableCharacteristic(
-            type: BLEUUIDs.glucose,
+            type: BLEUUIDs.liveData,
             properties: [.read, .notify],
             value: nil,
             permissions: [.readable]
         )
 
-        glucoseCharacteristic = characteristic
+            liveDataCharacteristic = characteristic
 
-        let service = CBMutableService(
-            type: BLEUUIDs.liveDataService,
-            primary: true
-        )
+            let service = CBMutableService(
+                type: BLEUUIDs.liveDataService,
+                primary: true
+            )
 
-        service.characteristics = [characteristic]
+            service.characteristics = [characteristic]
 
-        print(
-            "Adding BLE service: \(BLEUUIDs.liveDataService.uuidString)"
-        )
-
-        peripheralManager.add(service)
-    }
+            print("Adding BLE service: \(BLEUUIDs.liveDataService.uuidString)"
+            )
+        
+            peripheralManager.add(service)
+        }
 
     func startAdvertising() {
         guard BLESettings.isEnabled else {
@@ -256,4 +343,35 @@ private extension BLEManager {
 
         print("startAdvertising() called")
     }
+    
+    func sendCurrentLiveDataNotification() {
+        guard peripheralManager.state == .poweredOn else {
+            return
+        }
+
+        guard let liveDataCharacteristic else {
+            return
+        }
+
+        let packet = currentLiveData.encoded()
+
+        let wasQueued = peripheralManager.updateValue(
+            packet,
+            for: liveDataCharacteristic,
+            onSubscribedCentrals: nil
+        )
+
+        if wasQueued {
+            pendingNotification = nil
+
+            print(
+                "BLE live-data notification sent: " +
+                "\(currentLiveData.glucose) mg/dL"
+            )
+        } else {
+            pendingNotification = packet
+            print("BLE notification queue is full; waiting to retry")
+        }
+    }
+
 }

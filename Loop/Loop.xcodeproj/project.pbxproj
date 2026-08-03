@@ -592,6 +592,7 @@
 		EE3B8CAB301A47D0001ACD6E /* BLEUUIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3B8CAA301A47C7001ACD6E /* BLEUUIDs.swift */; };
 		EE3B8CAD301A47E8001ACD6E /* BLECharacteristic.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3B8CAC301A47D5001ACD6E /* BLECharacteristic.swift */; };
 		EE3B8CAF301A47F7001ACD6E /* LoopLiveData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3B8CAE301A47F1001ACD6E /* LoopLiveData.swift */; };
+		EE5717A2301FDC01000CE99E /* Data+LittleEndian.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5717A1301FDBF4000CE99E /* Data+LittleEndian.swift */; };
 		EE57F61C301BA286000CE99E /* BLESettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE57F61B301BA283000CE99E /* BLESettings.swift */; };
 		FADE0001000000000000DE02 /* DevelopmentBranchAlerter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADE0001000000000000DE01 /* DevelopmentBranchAlerter.swift */; };
 /* End PBXBuildFile section */
@@ -1413,6 +1414,7 @@
 		EE3B8CAA301A47C7001ACD6E /* BLEUUIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEUUIDs.swift; sourceTree = "<group>"; };
 		EE3B8CAC301A47D5001ACD6E /* BLECharacteristic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLECharacteristic.swift; sourceTree = "<group>"; };
 		EE3B8CAE301A47F1001ACD6E /* LoopLiveData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopLiveData.swift; sourceTree = "<group>"; };
+		EE5717A1301FDBF4000CE99E /* Data+LittleEndian.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+LittleEndian.swift"; sourceTree = "<group>"; };
 		EE57F61B301BA283000CE99E /* BLESettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLESettings.swift; sourceTree = "<group>"; };
 		F5D9C01727DABBE0002E48F6 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Intents.strings; sourceTree = "<group>"; };
 		F5D9C01C27DABBE1002E48F6 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Main.strings; sourceTree = "<group>"; };
@@ -2692,6 +2694,7 @@
 		EE3B8CB0301A47FE001ACD6E /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				EE5717A1301FDBF4000CE99E /* Data+LittleEndian.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3587,6 +3590,7 @@
 				892A5D692230C41D008961AB /* RangeReplaceableCollection.swift in Sources */,
 				DDC389F62A2B61750066E2E8 /* ApplicationFactorStrategy.swift in Sources */,
 				4F70C2101DE8FAC5006380B7 /* ExtensionDataManager.swift in Sources */,
+				EE5717A2301FDC01000CE99E /* Data+LittleEndian.swift in Sources */,
 				43DFB62320D4CAE7008A7BAE /* PumpManager.swift in Sources */,
 				A9FB75F1252BE320004C7D3F /* BolusDosingDecision.swift in Sources */,
 				892A5D59222F0A27008961AB /* Debug.swift in Sources */,
