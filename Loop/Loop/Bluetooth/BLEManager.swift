@@ -21,7 +21,7 @@ final class BLEManager: NSObject {
     private var liveDataCharacteristic: CBMutableCharacteristic?
 
     private var currentLiveData = LoopLiveData(
-        glucose: 125,
+        glucose: 123,
         trend: .flat,
         delta: 2,
         iobHundredths: 145,
@@ -30,7 +30,7 @@ final class BLEManager: NSObject {
         loopClosed: true,
         timestamp: Date()
     )
-
+    
     private var pendingNotification: Data?
     
     private var isServiceAdded = false
@@ -38,6 +38,8 @@ final class BLEManager: NSObject {
     private override init() {
         super.init()
 
+        print("BLEManager build marker: live-data-v4")
+        
         peripheralManager = CBPeripheralManager(
             delegate: self,
             queue: nil
@@ -63,6 +65,13 @@ final class BLEManager: NSObject {
     }
     
     func updateLiveData(_ liveData: LoopLiveData) {
+        if !Thread.isMainThread {
+            DispatchQueue.main.async { [weak self] in
+                self?.updateLiveData(liveData)
+            }
+            return
+        }
+
         currentLiveData = liveData
 
         guard BLESettings.isEnabled else {
@@ -70,6 +79,17 @@ final class BLEManager: NSObject {
         }
 
         sendCurrentLiveDataNotification()
+    }
+    
+    func updateGlucose(
+        _ glucose: UInt16,
+        timestamp: Date = Date()
+    ) {
+        var updatedData = currentLiveData
+        updatedData.glucose = glucose
+        updatedData.timestamp = timestamp
+
+        updateLiveData(updatedData)
     }
     
 }
@@ -184,7 +204,7 @@ extension BLEManager: CBPeripheralManagerDelegate {
             withResult: .success
         )
 
-        print("BLE read returned \(packet.count) bytes")
+        print("BLE live-data packet read: \(packet.count) bytes")
     }
     
     func peripheralManagerIsReady(

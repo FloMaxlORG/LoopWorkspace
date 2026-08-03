@@ -12,6 +12,10 @@ import Foundation
 
 struct LoopLiveData {
 
+    enum PacketType: UInt8 {
+        case liveData = 1
+    }
+
     enum Trend: UInt8 {
         case unknown = 0
         case doubleDown = 1
@@ -25,12 +29,13 @@ struct LoopLiveData {
 
     static let protocolVersion: UInt8 = 1
 
+    var packetType: PacketType = .liveData
     var glucose: UInt16
     var trend: Trend
     var delta: Int8
 
-    /// Insulin on board in hundredths of a unit.
-    /// Example: 145 means 1.45 U.
+    /// IOB in hundredths of a unit.
+    /// Example: 145 = 1.45 U.
     var iobHundredths: Int16
 
     var cob: UInt16
@@ -40,9 +45,10 @@ struct LoopLiveData {
 
     func encoded() -> Data {
         var data = Data()
-        data.reserveCapacity(16)
+        data.reserveCapacity(17)
 
         data.append(Self.protocolVersion)
+        data.append(packetType.rawValue)
 
         var flags: UInt8 = 0
 
@@ -58,11 +64,15 @@ struct LoopLiveData {
         data.appendLittleEndian(cob)
         data.appendLittleEndian(predictedGlucose)
 
-        let unixTimestamp = UInt32(
-            max(0, timestamp.timeIntervalSince1970)
+        let timestampSeconds = max(
+            0,
+            min(
+                timestamp.timeIntervalSince1970,
+                Double(UInt32.max)
+            )
         )
 
-        data.appendLittleEndian(unixTimestamp)
+        data.appendLittleEndian(UInt32(timestampSeconds))
 
         return data
     }

@@ -998,13 +998,54 @@ extension DeviceDataManager: CGMManagerDelegate {
         }
     }
 
-    func cgmManager(_ manager: CGMManager, hasNew readingResult: CGMReadingResult) {
+    func cgmManager(
+        _ manager: CGMManager,
+        hasNew readingResult: CGMReadingResult
+    ) {
         dispatchPrecondition(condition: .onQueue(queue))
-        log.default("CGMManager:%{public}@ did update with %{public}@", String(describing: type(of: manager)), String(describing: readingResult))
+
+        log.default(
+            "CGMManager:%{public}@ did update with %{public}@",
+            String(describing: type(of: manager)),
+            String(describing: readingResult)
+        )
+
         processCGMReadingResult(manager, readingResult: readingResult) {
+
+            // Send the newest stored glucose value over BLE.
+            if case .newData = readingResult,
+               let latestGlucose = self.glucoseStore.latestGlucose
+            {
+                let glucoseValue = latestGlucose.quantity.doubleValue(
+                    for: .milligramsPerDeciliter
+                )
+
+                if glucoseValue.isFinite,
+                   glucoseValue > 0,
+                   glucoseValue <= Double(UInt16.max)
+                {
+                    BLEManager.shared.updateGlucose(
+                        UInt16(glucoseValue.rounded()),
+                        timestamp: latestGlucose.startDate
+                    )
+
+                    self.log.default(
+                        "Updated BLE glucose: %{public}.0f mg/dL",
+                        glucoseValue
+                    )
+                }
+            }
+
             let now = Date()
-            if case .newData = readingResult, now.timeIntervalSince(self.lastCGMLoopTrigger) > .minutes(4.2) {
-                self.log.default("Triggering loop from new CGM data at %{public}@", String(describing: now))
+
+            if case .newData = readingResult,
+               now.timeIntervalSince(self.lastCGMLoopTrigger) > .minutes(4.2)
+            {
+                self.log.default(
+                    "Triggering loop from new CGM data at %{public}@",
+                    String(describing: now)
+                )
+
                 self.lastCGMLoopTrigger = now
                 self.checkPumpDataAndLoop()
             }
