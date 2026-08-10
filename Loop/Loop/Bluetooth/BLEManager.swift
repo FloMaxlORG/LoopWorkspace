@@ -34,6 +34,7 @@ final class BLEManager: NSObject {
     private var hasValidLiveData = false
     
     private var pendingNotification: Data?
+    private var lastNotifiedPacket: Data?
     
     private var isServiceAdded = false
     
@@ -220,6 +221,7 @@ extension BLEManager: CBPeripheralManagerDelegate {
 
         if wasQueued {
             pendingNotification = nil
+            lastNotifiedPacket = packet
             print("Pending BLE notification sent")
         }
     }
@@ -243,7 +245,7 @@ extension BLEManager: CBPeripheralManagerDelegate {
             return
         }
 
-        sendCurrentLiveDataNotification()
+        sendCurrentLiveDataNotification(force: true)
     }
 
     func peripheralManager(
@@ -293,6 +295,7 @@ private extension BLEManager {
 
         liveDataCharacteristic = nil
         pendingNotification = nil
+        lastNotifiedPacket = nil
         isServiceAdded = false
     }
 
@@ -380,7 +383,9 @@ private extension BLEManager {
         sendCurrentLiveDataNotification()
     }
     
-    func sendCurrentLiveDataNotification() {
+    func sendCurrentLiveDataNotification(
+        force: Bool = false
+    ) {
         guard peripheralManager.state == .poweredOn else {
             return
         }
@@ -389,7 +394,20 @@ private extension BLEManager {
             return
         }
 
+        guard hasValidLiveData else {
+            return
+        }
+
         let packet = currentLiveData.encoded()
+
+        // Don't send the exact same state repeatedly.
+        if !force,
+           let lastNotifiedPacket,
+           lastNotifiedPacket == packet
+        {
+            print("BLE notification skipped: packet unchanged")
+            return
+        }
 
         let wasQueued = peripheralManager.updateValue(
             packet,
@@ -399,17 +417,19 @@ private extension BLEManager {
 
         if wasQueued {
             pendingNotification = nil
+            lastNotifiedPacket = packet
 
             print(
-                "BLE live-data notification sent: " +
-                "\(currentLiveData.glucose) mg/dL" + " | " +
-                "Trend: \(String(describing:(currentLiveData.trend)))" + " | " +
-                "Delta: \(currentLiveData.delta) mg/dL"
-            )
-
+                "BLE live-data notification sent at \(currentLiveData.timestamp.formatted())\n" +
+                "-----------------------------------------\n" +
+                "Glucose: \(currentLiveData.glucose) mg/dL\n" +
+                "Trend: \(String(describing:(currentLiveData.trend)))\n" +
+                "Delta: \(currentLiveData.delta) mg/dL\n" +
+                "IOB: \(Double(currentLiveData.iobHundredths) / 100.0)\n" +
+                "IOB: \(currentLiveData.cob)didSubscribeTo"
+                    )
         } else {
             pendingNotification = packet
-            print("BLE notification queue is full; waiting to retry")
+            print("BLE notification queue full; waiting to retry")
         }
-    }
-}
+    }}

@@ -1136,6 +1136,39 @@ extension LoopDataManager {
         }
 
         _ = updateGroup.wait(timeout: .distantFuture)
+        
+        if let insulinOnBoard = self.insulinOnBoard {
+            self.logger.debug(
+                "BLE IOB: %{public}.2f U",
+                insulinOnBoard.value
+            )
+        }
+
+        if let carbsOnBoard = self.carbsOnBoard {
+            self.logger.debug(
+                "BLE COB: %{public}.0f g",
+                carbsOnBoard.value
+            )
+        }
+        
+        BLEManager.shared.update { liveData in
+            if let insulinOnBoard = self.insulinOnBoard {
+                liveData.iobHundredths = Int16(
+                    clamping: Int(
+                        (insulinOnBoard.value * 100).rounded()
+                    )
+                )
+            }
+
+            if let carbsOnBoard = self.carbsOnBoard {
+                liveData.cob = UInt16(
+                    clamping: max(
+                        0,
+                        Int(carbsOnBoard.value.rounded())
+                    )
+                )
+            }
+        }
 
         if retrospectiveGlucoseDiscrepancies == nil {
             do {
