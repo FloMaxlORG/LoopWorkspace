@@ -1020,14 +1020,97 @@ extension DeviceDataManager: CGMManagerDelegate {
                     for: .milligramsPerDeciliter
                 )
 
-                if glucoseValue.isFinite,
-                   glucoseValue > 0,
-                   glucoseValue <= Double(UInt16.max)
-                {
-                    BLEManager.shared.updateGlucose(
-                        UInt16(glucoseValue.rounded()),
-                        timestamp: latestGlucose.startDate
-                    )
+                guard glucoseValue.isFinite,
+                      glucoseValue > 0,
+                      glucoseValue <= Double(UInt16.max)
+                else {
+                    return
+                }
+
+                let startDate = latestGlucose.startDate.addingTimeInterval(-15 * 60)
+                let endDate = latestGlucose.startDate.addingTimeInterval(1)
+
+                self.getGlucoseSamples(
+                    start: startDate,
+                    end: endDate
+                ) { result in
+
+                    var encodedDelta = LoopLiveData.unknownDelta
+
+                    var bleGlucose = glucoseValue
+                    var bleTrend = latestGlucose.trend
+                    var bleTimestamp = latestGlucose.startDate
+
+                    switch result {
+
+                    case .success(let samples):
+
+                        let sortedSamples = samples.sorted {
+                            $0.startDate < $1.startDate
+                        }
+
+                        guard sortedSamples.count >= 2 else {
+                            self.log.default(
+                                "BLE delta unavailable: fewer than two glucose samples"
+                            )
+                            break
+                        }
+
+                        let latestSample = sortedSamples[sortedSamples.count - 1]
+                        let previousSample = sortedSamples[sortedSamples.count - 2]
+
+                        let latestValue = latestSample.quantity.doubleValue(
+                            for: .milligramsPerDeciliter
+                        )
+
+                        let previousValue = previousSample.quantity.doubleValue(
+                            for: .milligramsPerDeciliter
+                        )
+
+                        guard latestValue.isFinite,
+                              previousValue.isFinite
+                        else {
+                            self.log.default(
+                                "BLE delta unavailable: invalid glucose values"
+                            )
+                            break
+                        }
+
+                        let rawDelta = latestValue - previousValue
+                        let roundedDelta = Int(rawDelta.rounded())
+
+                        let safeDelta = max(
+                            -127,
+                            min(127, roundedDelta)
+                        )
+
+                        encodedDelta = Int8(safeDelta)
+
+                        bleGlucose = latestValue
+                        bleTrend = latestSample.trend
+                        bleTimestamp = latestSample.startDate
+
+                        self.log.default(
+                            "BLE DELTA — new: %{public}.0f, old: %{public}.0f, delta: %{public}d mg/dL",
+                            latestValue,
+                            previousValue,
+                            safeDelta
+                        )
+
+                    case .failure(let error):
+
+                        self.log.error(
+                            "Unable to calculate BLE glucose delta: %{public}@",
+                            error.localizedDescription
+                        )
+                    }
+
+                    BLEManager.shared.update { liveData in
+                        liveData.glucose = UInt16(bleGlucose.rounded())
+                        liveData.trend = .from(bleTrend)
+                        liveData.delta = encodedDelta
+                        liveData.timestamp = bleTimestamp
+                    }
 
                     self.log.default(
                         "Updated BLE glucose: %{public}.0f mg/dL",

@@ -21,15 +21,17 @@ final class BLEManager: NSObject {
     private var liveDataCharacteristic: CBMutableCharacteristic?
 
     private var currentLiveData = LoopLiveData(
-        glucose: 123,
-        trend: .flat,
-        delta: 2,
-        iobHundredths: 145,
-        cob: 18,
-        predictedGlucose: 118,
-        loopClosed: true,
-        timestamp: Date()
+        glucose: 0,
+        trend: .unknown,
+        delta: LoopLiveData.unknownDelta,
+        iobHundredths: 0,
+        cob: 0,
+        predictedGlucose: 0,
+        loopClosed: false,
+        timestamp: .distantPast
     )
+
+    private var hasValidLiveData = false
     
     private var pendingNotification: Data?
     
@@ -64,34 +66,21 @@ final class BLEManager: NSObject {
         }
     }
     
-    func updateLiveData(_ liveData: LoopLiveData) {
+    func update(
+        _ changes: @escaping (inout LoopLiveData) -> Void
+    ) {
         if !Thread.isMainThread {
             DispatchQueue.main.async { [weak self] in
-                self?.updateLiveData(liveData)
+                self?.update(changes)
             }
             return
         }
 
-        currentLiveData = liveData
+        changes(&currentLiveData)
+        hasValidLiveData = true
 
-        guard BLESettings.isEnabled else {
-            return
-        }
-
-        sendCurrentLiveDataNotification()
+        publishCurrentLiveData()
     }
-    
-    func updateGlucose(
-        _ glucose: UInt16,
-        timestamp: Date = Date()
-    ) {
-        var updatedData = currentLiveData
-        updatedData.glucose = glucose
-        updatedData.timestamp = timestamp
-
-        updateLiveData(updatedData)
-    }
-    
 }
 
 // MARK: - CBPeripheralManagerDelegate
@@ -172,11 +161,6 @@ extension BLEManager: CBPeripheralManagerDelegate {
         _ peripheral: CBPeripheralManager,
         didReceiveRead request: CBATTRequest
     ) {
-        print(
-            "BLE read request received for " +
-            request.characteristic.uuid.uuidString
-        )
-
         guard request.characteristic.uuid == BLEUUIDs.liveData else {
             peripheral.respond(
                 to: request,
@@ -184,10 +168,20 @@ extension BLEManager: CBPeripheralManagerDelegate {
             )
             return
         }
-        
+
+        guard hasValidLiveData else {
+            print("BLE read requested before live data was available")
+
+            peripheral.respond(
+                to: request,
+                withResult: .unlikelyError
+            )
+            return
+        }
+
         let packet = currentLiveData.encoded()
 
-        guard request.offset >= 0, request.offset < packet.count else {
+        guard request.offset < packet.count else {
             peripheral.respond(
                 to: request,
                 withResult: .invalidOffset
@@ -204,7 +198,8 @@ extension BLEManager: CBPeripheralManagerDelegate {
             withResult: .success
         )
 
-        print("BLE live-data packet read: \(packet.count) bytes")
+        print("BLE live-data read returned \(packet.count) bytes")
+        
     }
     
     func peripheralManagerIsReady(
@@ -240,6 +235,11 @@ extension BLEManager: CBPeripheralManagerDelegate {
         )
 
         guard characteristic.uuid == BLEUUIDs.liveData else {
+            return
+        }
+
+        guard hasValidLiveData else {
+            print("No valid Loop live data available yet")
             return
         }
 
@@ -364,6 +364,22 @@ private extension BLEManager {
         print("startAdvertising() called")
     }
     
+    func publishCurrentLiveData() {
+        guard BLESettings.isEnabled else {
+            return
+        }
+
+        guard peripheralManager.state == .poweredOn else {
+            return
+        }
+
+        guard liveDataCharacteristic != nil else {
+            return
+        }
+
+        sendCurrentLiveDataNotification()
+    }
+    
     func sendCurrentLiveDataNotification() {
         guard peripheralManager.state == .poweredOn else {
             return
@@ -386,12 +402,14 @@ private extension BLEManager {
 
             print(
                 "BLE live-data notification sent: " +
-                "\(currentLiveData.glucose) mg/dL"
+                "\(currentLiveData.glucose) mg/dL" + " | " +
+                "Trend: \(String(describing:(currentLiveData.trend)))" + " | " +
+                "Delta: \(currentLiveData.delta) mg/dL"
             )
+
         } else {
             pendingNotification = packet
             print("BLE notification queue is full; waiting to retry")
         }
     }
-
 }

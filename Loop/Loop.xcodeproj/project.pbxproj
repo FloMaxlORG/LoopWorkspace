@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -588,12 +588,19 @@
 		E9C58A7E24DB529A00487A17 /* dynamic_glucose_effect_partially_observed.json in Resources */ = {isa = PBXBuildFile; fileRef = E9C58A7924DB529A00487A17 /* dynamic_glucose_effect_partially_observed.json */; };
 		E9C58A7F24DB529A00487A17 /* counteraction_effect_falling_glucose.json in Resources */ = {isa = PBXBuildFile; fileRef = E9C58A7A24DB529A00487A17 /* counteraction_effect_falling_glucose.json */; };
 		E9C58A8024DB529A00487A17 /* insulin_effect.json in Resources */ = {isa = PBXBuildFile; fileRef = E9C58A7B24DB529A00487A17 /* insulin_effect.json */; };
+		EE39A6F03022229D00D6446F /* BLE_PROTOCOL.md in Resources */ = {isa = PBXBuildFile; fileRef = EE39A6EF3022227D00D6446F /* BLE_PROTOCOL.md */; };
+		EE39A6F4302223A400D6446F /* BLEProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE39A6F33022239500D6446F /* BLEProtocol.swift */; };
+		EE39A6F73022240F00D6446F /* LiveDataBLEService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE39A6F63022240600D6446F /* LiveDataBLEService.swift */; };
+		EE39A6F93022242300D6446F /* BLEAdvertisement.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE39A6F83022241800D6446F /* BLEAdvertisement.swift */; };
 		EE3B8CA9301A47B0001ACD6E /* BLEManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3B8CA8301A47A6001ACD6E /* BLEManager.swift */; };
 		EE3B8CAB301A47D0001ACD6E /* BLEUUIDs.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3B8CAA301A47C7001ACD6E /* BLEUUIDs.swift */; };
-		EE3B8CAD301A47E8001ACD6E /* BLECharacteristic.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3B8CAC301A47D5001ACD6E /* BLECharacteristic.swift */; };
+		EE3B8CAD301A47E8001ACD6E /* LiveDataBLECharacteristic.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3B8CAC301A47D5001ACD6E /* LiveDataBLECharacteristic.swift */; };
 		EE3B8CAF301A47F7001ACD6E /* LoopLiveData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3B8CAE301A47F1001ACD6E /* LoopLiveData.swift */; };
 		EE5717A2301FDC01000CE99E /* Data+LittleEndian.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5717A1301FDBF4000CE99E /* Data+LittleEndian.swift */; };
 		EE57F61C301BA286000CE99E /* BLESettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE57F61B301BA283000CE99E /* BLESettings.swift */; };
+		EE64424A30230D250076DADA /* Data+LittleEndian.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5717A1301FDBF4000CE99E /* Data+LittleEndian.swift */; };
+		EE64424B30230D250076DADA /* LoopLiveData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3B8CAE301A47F1001ACD6E /* LoopLiveData.swift */; };
+		EE85528E3024650700EFD6A4 /* LoopLiveData+Trend.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE85528D302464F900EFD6A4 /* LoopLiveData+Trend.swift */; };
 		FADE0001000000000000DE02 /* DevelopmentBranchAlerter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADE0001000000000000DE01 /* DevelopmentBranchAlerter.swift */; };
 /* End PBXBuildFile section */
 
@@ -681,6 +688,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = E9B07F7B253BBA6500BAD8F8;
 			remoteInfo = "Loop Intent Extension";
+		};
+		EE64424530230CC70076DADA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43776F841B8022E90074EA36 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43776F8B1B8022E90074EA36;
+			remoteInfo = Loop;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -1410,12 +1424,18 @@
 		E9C58A7924DB529A00487A17 /* dynamic_glucose_effect_partially_observed.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = dynamic_glucose_effect_partially_observed.json; sourceTree = "<group>"; };
 		E9C58A7A24DB529A00487A17 /* counteraction_effect_falling_glucose.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = counteraction_effect_falling_glucose.json; sourceTree = "<group>"; };
 		E9C58A7B24DB529A00487A17 /* insulin_effect.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = insulin_effect.json; sourceTree = "<group>"; };
+		EE39A6EF3022227D00D6446F /* BLE_PROTOCOL.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = BLE_PROTOCOL.md; sourceTree = "<group>"; };
+		EE39A6F33022239500D6446F /* BLEProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEProtocol.swift; sourceTree = "<group>"; };
+		EE39A6F63022240600D6446F /* LiveDataBLEService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveDataBLEService.swift; sourceTree = "<group>"; };
+		EE39A6F83022241800D6446F /* BLEAdvertisement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEAdvertisement.swift; sourceTree = "<group>"; };
 		EE3B8CA8301A47A6001ACD6E /* BLEManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEManager.swift; sourceTree = "<group>"; };
 		EE3B8CAA301A47C7001ACD6E /* BLEUUIDs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEUUIDs.swift; sourceTree = "<group>"; };
-		EE3B8CAC301A47D5001ACD6E /* BLECharacteristic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLECharacteristic.swift; sourceTree = "<group>"; };
+		EE3B8CAC301A47D5001ACD6E /* LiveDataBLECharacteristic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveDataBLECharacteristic.swift; sourceTree = "<group>"; };
 		EE3B8CAE301A47F1001ACD6E /* LoopLiveData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopLiveData.swift; sourceTree = "<group>"; };
 		EE5717A1301FDBF4000CE99E /* Data+LittleEndian.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+LittleEndian.swift"; sourceTree = "<group>"; };
 		EE57F61B301BA283000CE99E /* BLESettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLESettings.swift; sourceTree = "<group>"; };
+		EE64424130230CC70076DADA /* LoopBLETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LoopBLETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE85528D302464F900EFD6A4 /* LoopLiveData+Trend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoopLiveData+Trend.swift"; sourceTree = "<group>"; };
 		F5D9C01727DABBE0002E48F6 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Intents.strings; sourceTree = "<group>"; };
 		F5D9C01C27DABBE1002E48F6 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Main.strings; sourceTree = "<group>"; };
 		F5D9C01E27DABBE2002E48F6 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -1426,6 +1446,10 @@
 		F5E0BDE327E1D7230033557E /* he */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = he; path = he.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FADE0001000000000000DE01 /* DevelopmentBranchAlerter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DevelopmentBranchAlerter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		EE64424230230CC70076DADA /* LoopBLETests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = LoopBLETests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		14B1735928AED9EC006CCD7C /* Frameworks */ = {
@@ -1527,6 +1551,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		E9B07F79253BBA6500BAD8F8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE64423E30230CC70076DADA /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -1711,6 +1742,7 @@
 				E9B07F7D253BBA6500BAD8F8 /* Loop Intent Extension */,
 				14B1736128AED9EC006CCD7C /* Loop Widget Extension */,
 				A900531928D60852000BC15B /* Shortcuts */,
+				EE64424230230CC70076DADA /* LoopBLETests */,
 				968DCD53F724DE56FFE51920 /* Frameworks */,
 				43776F8D1B8022E90074EA36 /* Products */,
 				437D9BA11D7B5203007245E8 /* Loop.xcconfig */,
@@ -1731,6 +1763,7 @@
 				43D9002A21EB209400AF44BF /* LoopCore.framework */,
 				E9B07F7C253BBA6500BAD8F8 /* Loop Intent Extension.appex */,
 				14B1735C28AED9EC006CCD7C /* Loop Widget Extension.appex */,
+				EE64424130230CC70076DADA /* LoopBLETests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2678,14 +2711,35 @@
 			path = Fixtures;
 			sourceTree = "<group>";
 		};
+		EE39A6F13022233600D6446F /* Protocol */ = {
+			isa = PBXGroup;
+			children = (
+				EE3B8CAA301A47C7001ACD6E /* BLEUUIDs.swift */,
+				EE3B8CAE301A47F1001ACD6E /* LoopLiveData.swift */,
+				EE85528D302464F900EFD6A4 /* LoopLiveData+Trend.swift */,
+				EE39A6F33022239500D6446F /* BLEProtocol.swift */,
+				EE39A6EF3022227D00D6446F /* BLE_PROTOCOL.md */,
+			);
+			path = Protocol;
+			sourceTree = "<group>";
+		};
+		EE39A6F23022234400D6446F /* GATT */ = {
+			isa = PBXGroup;
+			children = (
+				EE3B8CAC301A47D5001ACD6E /* LiveDataBLECharacteristic.swift */,
+				EE39A6F63022240600D6446F /* LiveDataBLEService.swift */,
+				EE39A6F83022241800D6446F /* BLEAdvertisement.swift */,
+			);
+			path = GATT;
+			sourceTree = "<group>";
+		};
 		EE3B8CA7301A4738001ACD6E /* Bluetooth */ = {
 			isa = PBXGroup;
 			children = (
 				EE3B8CA8301A47A6001ACD6E /* BLEManager.swift */,
-				EE3B8CAA301A47C7001ACD6E /* BLEUUIDs.swift */,
-				EE3B8CAC301A47D5001ACD6E /* BLECharacteristic.swift */,
-				EE3B8CAE301A47F1001ACD6E /* LoopLiveData.swift */,
 				EE57F61B301BA283000CE99E /* BLESettings.swift */,
+				EE39A6F23022234400D6446F /* GATT */,
+				EE39A6F13022233600D6446F /* Protocol */,
 				EE3B8CB0301A47FE001ACD6E /* Extensions */,
 			);
 			path = Bluetooth;
@@ -2939,13 +2993,36 @@
 			productReference = E9B07F7C253BBA6500BAD8F8 /* Loop Intent Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		EE64424030230CC70076DADA /* LoopBLETests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EE64424730230CC70076DADA /* Build configuration list for PBXNativeTarget "LoopBLETests" */;
+			buildPhases = (
+				EE64423D30230CC70076DADA /* Sources */,
+				EE64423E30230CC70076DADA /* Frameworks */,
+				EE64423F30230CC70076DADA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EE64424630230CC70076DADA /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				EE64424230230CC70076DADA /* LoopBLETests */,
+			);
+			name = LoopBLETests;
+			packageProductDependencies = (
+			);
+			productName = LoopBLETests;
+			productReference = EE64424130230CC70076DADA /* LoopBLETests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		43776F841B8022E90074EA36 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1340;
+				LastSwiftUpdateCheck = 2640;
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = "LoopKit Authors";
 				TargetAttributes = {
@@ -3042,6 +3119,10 @@
 					E9B07F7B253BBA6500BAD8F8 = {
 						ProvisioningStyle = Automatic;
 					};
+					EE64424030230CC70076DADA = {
+						CreatedOnToolsVersion = 26.4.1;
+						TestTargetID = 43776F8B1B8022E90074EA36;
+					};
 				};
 			};
 			buildConfigurationList = 43776F871B8022E90074EA36 /* Build configuration list for PBXProject "Loop" */;
@@ -3096,6 +3177,7 @@
 				43D9001A21EB209400AF44BF /* LoopCore-watchOS */,
 				4F75288A1DFE1DC600C322D6 /* LoopUI */,
 				43E2D90A1D20C581004DA55F /* LoopTests */,
+				EE64424030230CC70076DADA /* LoopBLETests */,
 			);
 		};
 /* End PBXProject section */
@@ -3119,6 +3201,7 @@
 			files = (
 				B66D1F392E6A5D6600471149 /* InfoPlist.xcstrings in Resources */,
 				C13255D6223E7BE2008AF50C /* BolusProgressTableViewCell.xib in Resources */,
+				EE39A6F03022229D00D6446F /* BLE_PROTOCOL.md in Resources */,
 				C1EE9E812A38D0FB0064784A /* BuildDetails.plist in Resources */,
 				43FCBBC21E51710B00343C1B /* LaunchScreen.storyboard in Resources */,
 				B405E35A24D2B1A400DD058D /* HUDAssets.xcassets in Resources */,
@@ -3252,6 +3335,13 @@
 			files = (
 				B66D1F312E6A5D6600471149 /* InfoPlist.xcstrings in Resources */,
 				B66D1F2D2E6A5D6600471149 /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EE64423F30230CC70076DADA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3425,6 +3515,7 @@
 				C1D289B522F90A52003FFBD9 /* BasalDeliveryState.swift in Sources */,
 				4F2C15821E074FC600E160D4 /* NSTimeInterval.swift in Sources */,
 				4311FB9B1F37FE1B00D4C0A7 /* TitleSubtitleTextFieldTableViewCell.swift in Sources */,
+				EE39A6F4302223A400D6446F /* BLEProtocol.swift in Sources */,
 				3ED319992EB65A6900820BCF /* LiveActivityManagementView.swift in Sources */,
 				3ED3199A2EB65A6900820BCF /* LiveActivityBottomRowManagerView.swift in Sources */,
 				C1F2075C26D6F9B0007AB7EB /* AppExpirationAlerter.swift in Sources */,
@@ -3433,6 +3524,7 @@
 				142CB7592A60BF2E0075748A /* EditMode.swift in Sources */,
 				EE3B8CAF301A47F7001ACD6E /* LoopLiveData.swift in Sources */,
 				E95D380324EADF36005E2F50 /* CarbStoreProtocol.swift in Sources */,
+				EE85528E3024650700EFD6A4 /* LoopLiveData+Trend.swift in Sources */,
 				B470F5842AB22B5100049695 /* StatefulPluggable.swift in Sources */,
 				EE3B8CA9301A47B0001ACD6E /* BLEManager.swift in Sources */,
 				E98A55ED24EDD6380008715D /* LatestStoredSettingsProvider.swift in Sources */,
@@ -3520,6 +3612,7 @@
 				A9CBE458248AB564008E7BA2 /* DoseStore+SimulatedCoreData.swift in Sources */,
 				897A5A9924C22DE800C4E71D /* BolusEntryViewModel.swift in Sources */,
 				4374B5EF209D84BF00D17AA8 /* OSLog.swift in Sources */,
+				EE39A6F93022242300D6446F /* BLEAdvertisement.swift in Sources */,
 				1DB619AC270BAD3D006C9D07 /* VersionUpdateViewModel.swift in Sources */,
 				A9C62D882331703100535612 /* Service.swift in Sources */,
 				89CAB36324C8FE96009EE3CE /* PredictedGlucoseChartView.swift in Sources */,
@@ -3600,6 +3693,7 @@
 				14D906F42A846510006EB79A /* FavoriteFoodsViewModel.swift in Sources */,
 				3ED319912EB65A2D00820BCF /* GlucoseActivityAttributes.swift in Sources */,
 				3ED319922EB65A2D00820BCF /* LiveActivityManager.swift in Sources */,
+				EE39A6F73022240F00D6446F /* LiveDataBLEService.swift in Sources */,
 				3ED319932EB65A2D00820BCF /* ChartAxisGenerator.swift in Sources */,
 				DDC389FE2A2C4C830066E2E8 /* GlucoseBasedApplicationFactorSelectionView.swift in Sources */,
 				A9C62D842331700E00535612 /* DiagnosticLog+Subsystem.swift in Sources */,
@@ -3619,7 +3713,7 @@
 				C18913B52524F24C007B0683 /* DeviceDataManager+SimpleBolusViewModelDelegate.swift in Sources */,
 				7E69CFFC2A16A77E00203CBD /* ResetLoopManager.swift in Sources */,
 				B40D07C7251A89D500C1C6D7 /* GlucoseDisplay.swift in Sources */,
-				EE3B8CAD301A47E8001ACD6E /* BLECharacteristic.swift in Sources */,
+				EE3B8CAD301A47E8001ACD6E /* LiveDataBLECharacteristic.swift in Sources */,
 				43C2FAE11EB656A500364AFF /* GlucoseEffectVelocity.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3887,6 +3981,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EE64423D30230CC70076DADA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EE64424A30230D250076DADA /* Data+LittleEndian.swift in Sources */,
+				EE64424B30230D250076DADA /* LoopLiveData.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -3949,6 +4052,11 @@
 			isa = PBXTargetDependency;
 			target = E9B07F7B253BBA6500BAD8F8 /* Loop Intent Extension */;
 			targetProxy = E9B07F92253BBA6500BAD8F8 /* PBXContainerItemProxy */;
+		};
+		EE64424630230CC70076DADA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43776F8B1B8022E90074EA36 /* Loop */;
+			targetProxy = EE64424530230CC70076DADA /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -4930,6 +5038,87 @@
 			};
 			name = Release;
 		};
+		EE64424830230CC70076DADA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = M9Y496WHCP;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = FloMaxl.LoopBLETests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Loop.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Loop";
+			};
+			name = Debug;
+		};
+		EE64424930230CC70076DADA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = M9Y496WHCP;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = FloMaxl.LoopBLETests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Loop.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Loop";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -5028,6 +5217,15 @@
 			buildConfigurations = (
 				E9B07F95253BBA6500BAD8F8 /* Debug */,
 				E9B07F96253BBA6500BAD8F8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EE64424730230CC70076DADA /* Build configuration list for PBXNativeTarget "LoopBLETests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE64424830230CC70076DADA /* Debug */,
+				EE64424930230CC70076DADA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
