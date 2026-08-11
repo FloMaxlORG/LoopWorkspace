@@ -67,18 +67,45 @@ final class BLEManager: NSObject {
         }
     }
     
-    func update(
+    func updateState(
         _ changes: @escaping (inout LoopLiveData) -> Void
     ) {
         if !Thread.isMainThread {
             DispatchQueue.main.async { [weak self] in
-                self?.update(changes)
+                self?.updateState(changes)
             }
             return
         }
 
         changes(&currentLiveData)
-        hasValidLiveData = true
+
+        hasValidLiveData =
+            currentLiveData.glucose > 0 &&
+            currentLiveData.timestamp.timeIntervalSince1970 > 0
+
+        // Intentionally DO NOT publish here.
+    }
+    
+    func updateGlucoseAndPublish(
+        _ changes: @escaping (inout LoopLiveData) -> Void
+    ) {
+        if !Thread.isMainThread {
+            DispatchQueue.main.async { [weak self] in
+                self?.updateGlucoseAndPublish(changes)
+            }
+            return
+        }
+
+        changes(&currentLiveData)
+
+        hasValidLiveData =
+            currentLiveData.glucose > 0 &&
+            currentLiveData.timestamp.timeIntervalSince1970 > 0
+
+        guard hasValidLiveData else {
+            print("BLE glucose update invalid — packet not published")
+            return
+        }
 
         publishCurrentLiveData()
     }
@@ -371,6 +398,12 @@ private extension BLEManager {
         guard BLESettings.isEnabled else {
             return
         }
+        
+        guard hasValidLiveData else {
+
+            return
+
+        }
 
         guard peripheralManager.state == .poweredOn else {
             return
@@ -420,13 +453,16 @@ private extension BLEManager {
             lastNotifiedPacket = packet
 
             print(
-                "BLE live-data notification sent at \(currentLiveData.timestamp.formatted())\n" +
+                "\nBLE live-data notification sent at \(currentLiveData.timestamp.formatted())\n" +
                 "-----------------------------------------\n" +
-                "Glucose: \(currentLiveData.glucose) mg/dL\n" +
+                "Current BG: \(currentLiveData.glucose) mg/dL\n" +
+                "Prediction: \(currentLiveData.predictedGlucose) mg/dL\n" +
                 "Trend: \(String(describing:(currentLiveData.trend)))\n" +
                 "Delta: \(currentLiveData.delta) mg/dL\n" +
                 "IOB: \(Double(currentLiveData.iobHundredths) / 100.0)\n" +
-                "IOB: \(currentLiveData.cob)didSubscribeTo"
+                "COB: \(currentLiveData.cob)\n" +
+                "Closed Loop: \(currentLiveData.loopClosed)\n" +
+                "-----------------------------------------\n"
                     )
         } else {
             pendingNotification = packet

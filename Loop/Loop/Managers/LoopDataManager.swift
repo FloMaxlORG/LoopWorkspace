@@ -1151,7 +1151,8 @@ extension LoopDataManager {
             )
         }
         
-        BLEManager.shared.update { liveData in
+        
+        BLEManager.shared.updateState { liveData in
             if let insulinOnBoard = self.insulinOnBoard {
                 liveData.iobHundredths = Int16(
                     clamping: Int(
@@ -1168,6 +1169,7 @@ extension LoopDataManager {
                     )
                 )
             }
+            liveData.loopClosed = self.settings.dosingEnabled
         }
 
         if retrospectiveGlucoseDiscrepancies == nil {
@@ -1818,6 +1820,28 @@ extension LoopDataManager {
             let predictedGlucoseIncludingPendingInsulin = try predictGlucose(using: settings.enabledEffects, includingPendingInsulin: true)
             self.predictedGlucoseIncludingPendingInsulin = predictedGlucoseIncludingPendingInsulin
 
+            // BLE prediction glucose
+            if let predicted = predictedGlucoseIncludingPendingInsulin.last {
+                let predictedValue = predicted.quantity.doubleValue(
+                    for: .milligramsPerDeciliter
+                )
+
+                if predictedValue.isFinite,
+                   predictedValue > 0,
+                   predictedValue <= Double(UInt16.max)
+                {
+                    BLEManager.shared.updateState { liveData in
+                        liveData.predictedGlucose =
+                            UInt16(predictedValue.rounded())
+                    }
+
+                    self.logger.debug(
+                        "BLE predicted glucose: %{public}.0f mg/dL",
+                        predictedValue
+                    )
+                }
+            }
+            
             dosingDecision.predictedGlucose = predictedGlucose
 
             guard lastRequestedBolus == nil

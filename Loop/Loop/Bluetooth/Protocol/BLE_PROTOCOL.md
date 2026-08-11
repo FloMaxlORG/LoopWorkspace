@@ -164,6 +164,28 @@ Examples
 
 ---
 
+# Predicted Glucose
+
+Bytes 11-12
+
+Type: UInt16, little-endian
+
+Unit: mg/dL
+
+This field contains the final value of Loop's current
+`predictedGlucoseIncludingPendingInsulin` prediction curve.
+
+In other words, it represents Loop's eventual predicted glucose
+including pending insulin.
+
+Example:
+
+173 mg/dL
+
+Encoded as:
+
+AD 00
+
 # Timestamp
 
 Unix timestamp
@@ -242,3 +264,6 @@ Used to verify connection health.
 7. All integers are little-endian.
 
 8. BLE notifications are preferred over polling.
+
+9. Predicted glucose refers to the final point of Loop's
+   `predictedGlucoseIncludingPendingInsulin` curve.

@@ -1105,13 +1105,13 @@ extension DeviceDataManager: CGMManagerDelegate {
                         )
                     }
 
-                    BLEManager.shared.update { liveData in
+                    BLEManager.shared.updateGlucoseAndPublish { liveData in
                         liveData.glucose = UInt16(bleGlucose.rounded())
                         liveData.trend = .from(bleTrend)
                         liveData.delta = encodedDelta
                         liveData.timestamp = bleTimestamp
                     }
-
+                    
                     self.log.default(
                         "Updated BLE glucose: %{public}.0f mg/dL",
                         glucoseValue
