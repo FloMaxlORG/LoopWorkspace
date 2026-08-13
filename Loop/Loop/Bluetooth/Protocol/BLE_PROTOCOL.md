@@ -46,7 +46,7 @@ Live Data Packet
 
 Length
 
-17 Bytes
+18 Bytes
 
 | Byte | Size | Type | Description |
 |------|------|------|-------------|
@@ -60,7 +60,7 @@ Length
 |9-10|2|UInt16|COB (g)|
 |11-12|2|UInt16|Predicted Glucose|
 |13-16|4|UInt32|Unix Timestamp|
-
+|17-17|4|UInt32|Battery %|
 ---
 
 # Packet Types

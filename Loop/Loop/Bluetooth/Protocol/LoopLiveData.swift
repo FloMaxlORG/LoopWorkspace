@@ -28,7 +28,7 @@ struct LoopLiveData {
     }
 
     static let protocolVersion: UInt8 = 1
-    static let encodedLength = 17
+    static let encodedLength = 18
 
     /// Reserved value meaning that no valid delta is currently available.
     static let unknownDelta: Int8 = .min
@@ -62,6 +62,13 @@ struct LoopLiveData {
 
     /// Whether closed-loop operation is enabled.
     var loopClosed: Bool
+    
+    /// iPhone battery percentage.
+    ///
+    /// 0...100 = battery percentage
+    /// 255 = unavailable
+    var phoneBatteryPercent: UInt8
+    static let unknownBatteryPercent: UInt8 = 255
 
     /// Timestamp belonging to the current glucose sample.
     var timestamp: Date
@@ -126,6 +133,10 @@ struct LoopLiveData {
         data.appendLittleEndian(
             UInt32(timestampSeconds)
         )
+        
+        // Byte 17
+        // iPhone battery percentage
+        data.append(phoneBatteryPercent)
 
         assert(
             data.count == Self.encodedLength,

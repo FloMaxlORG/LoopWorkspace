@@ -10,6 +10,7 @@
 
 import Foundation
 import CoreBluetooth
+import UIKit
 
 final class BLEManager: NSObject {
 
@@ -29,6 +30,7 @@ final class BLEManager: NSObject {
         cob: 0,
         predictedGlucose: 0,
         loopClosed: false,
+        phoneBatteryPercent: LoopLiveData.unknownBatteryPercent,
         timestamp: .distantPast
     )
     
@@ -52,6 +54,8 @@ final class BLEManager: NSObject {
     private override init() {
         super.init()
 
+        UIDevice.current.isBatteryMonitoringEnabled = true
+        
         print("BLEManager build marker: live-data-v4")
         
         peripheralManager = CBPeripheralManager(
@@ -108,7 +112,9 @@ final class BLEManager: NSObject {
         }
 
         changes(&currentLiveData)
-
+        
+        updatePhoneBattery()
+        
         hasValidLiveData =
             currentLiveData.glucose > 0 &&
             currentLiveData.timestamp.timeIntervalSince1970 > 0
@@ -405,7 +411,7 @@ extension BLEManager: CBPeripheralManagerDelegate {
                 )
                 return
             }
-
+            updatePhoneBattery()
             sendCurrentLiveDataNotification(
                 force: true
             )
@@ -639,7 +645,26 @@ private extension BLEManager {
         
         isServiceAdded = false
     }
+    
+    func updatePhoneBattery() {
+        let batteryLevel = UIDevice.current.batteryLevel
 
+        guard batteryLevel >= 0 else {
+            currentLiveData.phoneBatteryPercent =
+                LoopLiveData.unknownBatteryPercent
+            return
+        }
+
+        let percentage = Int(
+            (batteryLevel * 100).rounded()
+        )
+
+        currentLiveData.phoneBatteryPercent =
+            UInt8(
+                clamping: percentage
+            )
+    }
+    
     func setupService() {
         
         guard BLESettings.isEnabled else {
@@ -788,6 +813,7 @@ private extension BLEManager {
                 "IOB: \(Double(currentLiveData.iobHundredths) / 100.0)\n" +
                 "COB: \(currentLiveData.cob)\n" +
                 "Closed Loop: \(currentLiveData.loopClosed)\n" +
+                "Battery: \(currentLiveData.phoneBatteryPercent) %\n" +
                 "-----------------------------------------\n"
                     )
         } else {
