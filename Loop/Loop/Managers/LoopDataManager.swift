@@ -1820,6 +1820,32 @@ extension LoopDataManager {
             let predictedGlucoseIncludingPendingInsulin = try predictGlucose(using: settings.enabledEffects, includingPendingInsulin: true)
             self.predictedGlucoseIncludingPendingInsulin = predictedGlucoseIncludingPendingInsulin
 
+            // BLE graph prediction
+            let predictionPoints: [BLEManager.CachedPredictionPoint] =
+                predictedGlucoseIncludingPendingInsulin.compactMap { predicted in
+
+                    let value = predicted.quantity.doubleValue(
+                        for: .milligramsPerDeciliter
+                    )
+
+                    guard value.isFinite,
+                          value > 0,
+                          value <= Double(UInt16.max)
+                    else {
+                        return nil
+                    }
+
+                    return BLEManager.CachedPredictionPoint(
+                        glucose: UInt16(value.rounded()),
+                        date: predicted.startDate
+                    )
+                }
+
+            BLEManager.shared.updatePredictionGraph(
+                predictionPoints
+            )
+            
+            
             // BLE prediction glucose
             if let predicted = predictedGlucoseIncludingPendingInsulin.last {
                 let predictedValue = predicted.quantity.doubleValue(

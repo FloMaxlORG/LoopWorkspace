@@ -196,6 +196,21 @@ Seconds since
 
 ---
 
+Graph Notification Transport
+
+Byte 0  Transport version = 1
+Byte 1  Message type = 2 (graph chunk)
+Byte 2  Sequence ID
+Byte 3  Chunk index, zero based
+Byte 4  Total chunk count
+Byte 5+ GraphData payload fragment
+
+All chunks belonging to one graph snapshot share the same
+sequence ID and total chunk count.
+
+The receiver must concatenate payload bytes from chunks in
+chunk-index order before decoding the GlucoseGraphData packet.
+
 # Notifications
 
 Whenever Loop data changes, the complete packet is transmitted.

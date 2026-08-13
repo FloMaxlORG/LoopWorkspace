@@ -1027,8 +1027,11 @@ extension DeviceDataManager: CGMManagerDelegate {
                     return
                 }
 
-                let startDate = latestGlucose.startDate.addingTimeInterval(-15 * 60)
-                let endDate = latestGlucose.startDate.addingTimeInterval(1)
+                let startDate =
+                    latestGlucose.startDate.addingTimeInterval(-3 * 60 * 60)
+
+                let endDate =
+                    latestGlucose.startDate.addingTimeInterval(1)
 
                 self.getGlucoseSamples(
                     start: startDate,
@@ -1056,16 +1059,64 @@ extension DeviceDataManager: CGMManagerDelegate {
                             break
                         }
 
-                        let latestSample = sortedSamples[sortedSamples.count - 1]
-                        let previousSample = sortedSamples[sortedSamples.count - 2]
+                        let latestSample =
+                            sortedSamples[sortedSamples.count - 1]
 
-                        let latestValue = latestSample.quantity.doubleValue(
-                            for: .milligramsPerDeciliter
+                        let previousSample =
+                            sortedSamples[sortedSamples.count - 2]
+
+                        // MARK: - Build BLE graph history
+
+                        let historySamples = Array(
+                            sortedSamples.suffix(20)
                         )
 
-                        let previousValue = previousSample.quantity.doubleValue(
-                            for: .milligramsPerDeciliter
+                        let historyPoints: [GlucoseGraphData.Point] =
+                            historySamples.compactMap { sample in
+
+                                let value =
+                                    sample.quantity.doubleValue(
+                                        for: .milligramsPerDeciliter
+                                    )
+
+                                guard value.isFinite,
+                                      value > 0,
+                                      value <= Double(UInt16.max)
+                                else {
+                                    return nil
+                                }
+
+                                let relativeMinutes = Int(
+                                    sample.startDate
+                                        .timeIntervalSince(
+                                            latestSample.startDate
+                                        ) / 60.0
+                                )
+
+                                return GlucoseGraphData.Point(
+                                    glucose: UInt16(value.rounded()),
+                                    relativeMinutes: Int16(
+                                        clamping: relativeMinutes
+                                    )
+                                )
+                            }
+
+                        BLEManager.shared.updateGraphHistory(
+                            historyPoints,
+                            referenceDate: latestSample.startDate
                         )
+
+                        // MARK: - Calculate delta
+
+                        let latestValue =
+                            latestSample.quantity.doubleValue(
+                                for: .milligramsPerDeciliter
+                            )
+
+                        let previousValue =
+                            previousSample.quantity.doubleValue(
+                                for: .milligramsPerDeciliter
+                            )
 
                         guard latestValue.isFinite,
                               previousValue.isFinite
@@ -1076,8 +1127,11 @@ extension DeviceDataManager: CGMManagerDelegate {
                             break
                         }
 
-                        let rawDelta = latestValue - previousValue
-                        let roundedDelta = Int(rawDelta.rounded())
+                        let rawDelta =
+                            latestValue - previousValue
+
+                        let roundedDelta =
+                            Int(rawDelta.rounded())
 
                         let safeDelta = max(
                             -127,
@@ -1105,17 +1159,21 @@ extension DeviceDataManager: CGMManagerDelegate {
                         )
                     }
 
+                    // MARK: - Publish new glucose packet
+
                     BLEManager.shared.updateGlucoseAndPublish { liveData in
-                        liveData.glucose = UInt16(bleGlucose.rounded())
-                        liveData.trend = .from(bleTrend)
-                        liveData.delta = encodedDelta
-                        liveData.timestamp = bleTimestamp
+                        liveData.glucose =
+                            UInt16(bleGlucose.rounded())
+
+                        liveData.trend =
+                            .from(bleTrend)
+
+                        liveData.delta =
+                            encodedDelta
+
+                        liveData.timestamp =
+                            bleTimestamp
                     }
-                    
-                    self.log.default(
-                        "Updated BLE glucose: %{public}.0f mg/dL",
-                        glucoseValue
-                    )
                 }
             }
 

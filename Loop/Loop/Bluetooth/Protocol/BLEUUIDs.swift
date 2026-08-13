@@ -13,10 +13,14 @@ import CoreBluetooth
 enum BLEUUIDs {
 
     static let liveDataService = CBUUID(
-        string: "6D6F6F70-0001-4C4F-4F50-424C454C4F50"
+        string: "B734F6C1-4713-4E88-A1A6-2E285FC90A01"
     )
 
     static let liveData = CBUUID(
-        string: "6D6F6F70-0002-4C4F-4F50-424C454C4F50"
+        string: "B734F6C1-4713-4E88-A1A6-2E285FC90A02"
+    )
+
+    static let glucoseGraph = CBUUID(
+        string: "B734F6C1-4713-4E88-A1A6-2E285FC90A03"
     )
 }

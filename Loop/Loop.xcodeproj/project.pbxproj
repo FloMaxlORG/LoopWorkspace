@@ -601,6 +601,7 @@
 		EE64424A30230D250076DADA /* Data+LittleEndian.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5717A1301FDBF4000CE99E /* Data+LittleEndian.swift */; };
 		EE64424B30230D250076DADA /* LoopLiveData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3B8CAE301A47F1001ACD6E /* LoopLiveData.swift */; };
 		EE85528E3024650700EFD6A4 /* LoopLiveData+Trend.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE85528D302464F900EFD6A4 /* LoopLiveData+Trend.swift */; };
+		EEBC8397302B541600C1F338 /* GlucoseGraphData.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBC8396302B540200C1F338 /* GlucoseGraphData.swift */; };
 		FADE0001000000000000DE02 /* DevelopmentBranchAlerter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADE0001000000000000DE01 /* DevelopmentBranchAlerter.swift */; };
 /* End PBXBuildFile section */
 
@@ -1436,6 +1437,7 @@
 		EE57F61B301BA283000CE99E /* BLESettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLESettings.swift; sourceTree = "<group>"; };
 		EE64424130230CC70076DADA /* LoopBLETests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LoopBLETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE85528D302464F900EFD6A4 /* LoopLiveData+Trend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoopLiveData+Trend.swift"; sourceTree = "<group>"; };
+		EEBC8396302B540200C1F338 /* GlucoseGraphData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlucoseGraphData.swift; sourceTree = "<group>"; };
 		F5D9C01727DABBE0002E48F6 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Intents.strings; sourceTree = "<group>"; };
 		F5D9C01C27DABBE1002E48F6 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Main.strings; sourceTree = "<group>"; };
 		F5D9C01E27DABBE2002E48F6 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -2717,6 +2719,7 @@
 				EE3B8CAA301A47C7001ACD6E /* BLEUUIDs.swift */,
 				EE3B8CAE301A47F1001ACD6E /* LoopLiveData.swift */,
 				EE85528D302464F900EFD6A4 /* LoopLiveData+Trend.swift */,
+				EEBC8396302B540200C1F338 /* GlucoseGraphData.swift */,
 				EE39A6F33022239500D6446F /* BLEProtocol.swift */,
 				EE39A6EF3022227D00D6446F /* BLE_PROTOCOL.md */,
 			);
@@ -3647,6 +3650,7 @@
 				A9F703772489D8AA00C98AD8 /* PersistentDeviceLog+SimulatedCoreData.swift in Sources */,
 				E9B080B1253BDA6300BAD8F8 /* UserDefaults+LoopIntents.swift in Sources */,
 				C1AF062329426300002C1B19 /* ManualGlucoseEntryRow.swift in Sources */,
+				EEBC8397302B541600C1F338 /* GlucoseGraphData.swift in Sources */,
 				C148CEE724FD91BD00711B3B /* DeliveryUncertaintyAlertManager.swift in Sources */,
 				DDC389FC2A2BC6670066E2E8 /* SettingsView+algorithmExperimentsSection.swift in Sources */,
 				1D12D3B92548EFDD00B53E8B /* main.swift in Sources */,
