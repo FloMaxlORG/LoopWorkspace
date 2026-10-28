@@ -16,7 +16,7 @@ final class LoopLiveDataTests: XCTestCase {
 
         let packet = liveData.encoded()
 
-        XCTAssertEqual(packet.count, 17)
+        XCTAssertEqual(packet.count, 18)
     }
 
     func testEncodedPacketMatchesProtocolLayout() {
@@ -34,7 +34,8 @@ final class LoopLiveDataTests: XCTestCase {
             0x91, 0x00,       // IOB: 145 = 1.45 U
             0x12, 0x00,       // COB: 18 g
             0x76, 0x00,       // Predicted glucose: 118 mg/dL
-            0xE8, 0x03, 0x00, 0x00 // Timestamp: 1000
+            0xE8, 0x03, 0x00, 0x00, // Timestamp: 1000
+            0x4B              // Phone battery: 75%
         ]
 
         XCTAssertEqual(Array(packet), expectedBytes)
@@ -124,6 +125,7 @@ final class LoopLiveDataTests: XCTestCase {
             cob: 18,
             predictedGlucose: 118,
             loopClosed: true,
+            phoneBatteryPercent: 75,
             timestamp: Date(timeIntervalSince1970: 1000)
         )
     }
