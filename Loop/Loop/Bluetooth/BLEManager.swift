@@ -10,7 +10,6 @@
 
 import Foundation
 import CoreBluetooth
-import UIKit
 
 final class BLEManager: NSObject {
 
@@ -18,9 +17,8 @@ final class BLEManager: NSObject {
 
     private var peripheralManager: CBPeripheralManager!
     private var glucoseCharacteristic: CBMutableCharacteristic?
+
     private var liveDataCharacteristic: CBMutableCharacteristic?
-    private var glucoseGraphCharacteristic: CBMutableCharacteristic?
-    private var currentGraphData: GlucoseGraphData?
 
     private var currentLiveData = LoopLiveData(
         glucose: 0,
@@ -30,21 +28,10 @@ final class BLEManager: NSObject {
         cob: 0,
         predictedGlucose: 0,
         loopClosed: false,
-        phoneBatteryPercent: LoopLiveData.unknownBatteryPercent,
         timestamp: .distantPast
     )
-    
-    struct CachedPredictionPoint {
-        let glucose: UInt16
-        let date: Date
-    }
-    private var cachedPredictionPoints: [CachedPredictionPoint] = []
 
     private var hasValidLiveData = false
-    
-    private var graphSubscribers: [UUID: CBCentral] = [:]
-    private var graphSequenceID: UInt8 = 0
-    private var pendingGraphChunks: [Data] = []
     
     private var pendingNotification: Data?
     private var lastNotifiedPacket: Data?
@@ -54,8 +41,6 @@ final class BLEManager: NSObject {
     private override init() {
         super.init()
 
-        UIDevice.current.isBatteryMonitoringEnabled = true
-        
         print("BLEManager build marker: live-data-v4")
         
         peripheralManager = CBPeripheralManager(
@@ -112,9 +97,7 @@ final class BLEManager: NSObject {
         }
 
         changes(&currentLiveData)
-        
-        updatePhoneBattery()
-        
+
         hasValidLiveData =
             currentLiveData.glucose > 0 &&
             currentLiveData.timestamp.timeIntervalSince1970 > 0
@@ -125,69 +108,6 @@ final class BLEManager: NSObject {
         }
 
         publishCurrentLiveData()
-    }
-    
-    func updateGraphHistory(
-        _ history: [GlucoseGraphData.Point],
-        referenceDate: Date
-    ) {
-        if !Thread.isMainThread {
-            DispatchQueue.main.async { [weak self] in
-                self?.updateGraphHistory(
-                    history,
-                    referenceDate: referenceDate
-                )
-            }
-            return
-        }
-
-        let prediction: [GlucoseGraphData.Point] =
-            cachedPredictionPoints.compactMap { point in
-
-                let relativeMinutes = Int(
-                    point.date
-                        .timeIntervalSince(referenceDate)
-                        / 60.0
-                )
-
-                // Only include prediction points that are
-                // actually in the future relative to the
-                // current glucose sample.
-                guard relativeMinutes > 0 else {
-                    return nil
-                }
-
-                return GlucoseGraphData.Point(
-                    glucose: point.glucose,
-                    relativeMinutes: Int16(
-                        clamping: relativeMinutes
-                    )
-                )
-            }
-        currentGraphData = GlucoseGraphData(
-            history: history,
-            prediction: prediction
-        )
-
-        print(
-            "BLE graph prepared — " +
-            "\(history.count) history, " +
-            "\(prediction.count) prediction"
-        )
-        sendGraphNotifications()
-    }
-    
-    func updatePredictionGraph(
-        _ prediction: [CachedPredictionPoint]
-    ) {
-        if !Thread.isMainThread {
-            DispatchQueue.main.async { [weak self] in
-                self?.updatePredictionGraph(prediction)
-            }
-            return
-        }
-
-        cachedPredictionPoints = prediction
     }
 }
 
@@ -246,15 +166,9 @@ extension BLEManager: CBPeripheralManagerDelegate {
         }
 
         print("BLE service added successfully: \(service.uuid.uuidString)")
+
         isServiceAdded = true
-        
-        peripheral.startAdvertising([
-            CBAdvertisementDataLocalNameKey: "Loop-BLE",
-            CBAdvertisementDataServiceUUIDsKey: [
-                BLEUUIDs.liveDataService
-            ]
-        ])
-        print("startAdvertising() called")
+        startAdvertising()
     }
 
     func peripheralManagerDidStartAdvertising(
@@ -275,33 +189,7 @@ extension BLEManager: CBPeripheralManagerDelegate {
         _ peripheral: CBPeripheralManager,
         didReceiveRead request: CBATTRequest
     ) {
-        let data: Data
-
-        switch request.characteristic.uuid {
-
-        case BLEUUIDs.liveData:
-            guard hasValidLiveData else {
-                peripheral.respond(
-                    to: request,
-                    withResult: .unlikelyError
-                )
-                return
-            }
-
-            data = currentLiveData.encoded()
-
-        case BLEUUIDs.glucoseGraph:
-            guard let currentGraphData else {
-                peripheral.respond(
-                    to: request,
-                    withResult: .unlikelyError
-                )
-                return
-            }
-
-            data = currentGraphData.encoded()
-
-        default:
+        guard request.characteristic.uuid == BLEUUIDs.liveData else {
             peripheral.respond(
                 to: request,
                 withResult: .attributeNotFound
@@ -309,7 +197,19 @@ extension BLEManager: CBPeripheralManagerDelegate {
             return
         }
 
-        guard request.offset < data.count else {
+        guard hasValidLiveData else {
+            print("BLE read requested before live data was available")
+
+            peripheral.respond(
+                to: request,
+                withResult: .unlikelyError
+            )
+            return
+        }
+
+        let packet = currentLiveData.encoded()
+
+        guard request.offset < packet.count else {
             peripheral.respond(
                 to: request,
                 withResult: .invalidOffset
@@ -317,8 +217,8 @@ extension BLEManager: CBPeripheralManagerDelegate {
             return
         }
 
-        request.value = data.subdata(
-            in: request.offset..<data.count
+        request.value = packet.subdata(
+            in: request.offset..<packet.count
         )
 
         peripheral.respond(
@@ -326,69 +226,31 @@ extension BLEManager: CBPeripheralManagerDelegate {
             withResult: .success
         )
 
-        print(
-            "BLE read \(request.characteristic.uuid.uuidString): " +
-            "\(data.count) bytes"
-        )
+        print("BLE live-data read returned \(packet.count) bytes")
+        
     }
     
     func peripheralManagerIsReady(
         toUpdateSubscribers peripheral: CBPeripheralManager
     ) {
-
-        // Retry regular LiveData notification first.
-
-        if let packet = pendingNotification,
-           let liveDataCharacteristic
-        {
-            let queued =
-                peripheral.updateValue(
-                    packet,
-                    for: liveDataCharacteristic,
-                    onSubscribedCentrals: nil
-                )
-
-            if queued {
-                pendingNotification = nil
-                lastNotifiedPacket = packet
-
-                print(
-                    "Pending BLE live-data notification sent"
-                )
-            }
-        }
-
-        // Then retry graph chunks.
-
         guard
-            let glucoseGraphCharacteristic,
-            !pendingGraphChunks.isEmpty
+            let packet = pendingNotification,
+            let liveDataCharacteristic
         else {
             return
         }
 
-        while !pendingGraphChunks.isEmpty {
-
-            let chunk =
-                pendingGraphChunks[0]
-
-            let queued =
-                peripheral.updateValue(
-                    chunk,
-                    for: glucoseGraphCharacteristic,
-                    onSubscribedCentrals: nil
-                )
-
-            guard queued else {
-                return
-            }
-
-            pendingGraphChunks.removeFirst()
-        }
-
-        print(
-            "Pending BLE graph chunks sent"
+        let wasQueued = peripheral.updateValue(
+            packet,
+            for: liveDataCharacteristic,
+            onSubscribedCentrals: nil
         )
+
+        if wasQueued {
+            pendingNotification = nil
+            lastNotifiedPacket = packet
+            print("Pending BLE notification sent")
+        }
     }
     
     func peripheralManager(
@@ -401,39 +263,18 @@ extension BLEManager: CBPeripheralManagerDelegate {
             characteristic.uuid.uuidString
         )
 
-        switch characteristic.uuid {
-
-        case BLEUUIDs.liveData:
-
-            guard hasValidLiveData else {
-                print(
-                    "BLE subscribed, but no valid glucose data available yet"
-                )
-                return
-            }
-            updatePhoneBattery()
-            sendCurrentLiveDataNotification(
-                force: true
-            )
-
-        case BLEUUIDs.glucoseGraph:
-
-            graphSubscribers[central.identifier] =
-                central
-
-            print(
-                "BLE graph subscriber registered — " +
-                "maximumUpdateValueLength: " +
-                "\(central.maximumUpdateValueLength)"
-            )
-
-            // Give a new subscriber the current graph immediately.
-            sendGraphNotifications()
-
-        default:
-            break
+        guard characteristic.uuid == BLEUUIDs.liveData else {
+            return
         }
+
+        guard hasValidLiveData else {
+            print("No valid Loop live data available yet")
+            return
+        }
+
+        sendCurrentLiveDataNotification(force: true)
     }
+
     func peripheralManager(
         _ peripheral: CBPeripheralManager,
         central: CBCentral,
@@ -443,162 +284,7 @@ extension BLEManager: CBPeripheralManagerDelegate {
             "BLE central unsubscribed from " +
             characteristic.uuid.uuidString
         )
-
-        if characteristic.uuid ==
-            BLEUUIDs.glucoseGraph
-        {
-            graphSubscribers.removeValue(
-                forKey: central.identifier
-            )
-        }
     }
-    
-    func makeGraphChunks(
-        payload: Data,
-        maximumUpdateValueLength: Int
-    ) -> [Data] {
-
-        // Transport header:
-        //
-        // Byte 0 = transport version
-        // Byte 1 = packet type (graph chunk)
-        // Byte 2 = sequence ID
-        // Byte 3 = chunk index
-        // Byte 4 = total chunks
-
-        let headerLength = 5
-
-        guard maximumUpdateValueLength > headerLength else {
-            print(
-                "BLE graph MTU too small: \(maximumUpdateValueLength)"
-            )
-            return []
-        }
-
-        let payloadPerChunk =
-            maximumUpdateValueLength - headerLength
-
-        let totalChunks = Int(
-            ceil(
-                Double(payload.count) /
-                Double(payloadPerChunk)
-            )
-        )
-
-        guard totalChunks <= Int(UInt8.max) else {
-            print(
-                "BLE graph requires too many chunks: \(totalChunks)"
-            )
-            return []
-        }
-
-        let sequenceID = graphSequenceID
-
-        graphSequenceID &+= 1
-
-        var chunks: [Data] = []
-        chunks.reserveCapacity(totalChunks)
-
-        for chunkIndex in 0..<totalChunks {
-
-            let start =
-                chunkIndex * payloadPerChunk
-
-            let end = min(
-                start + payloadPerChunk,
-                payload.count
-            )
-
-            var chunk = Data()
-
-            chunk.append(1)                     // Transport version
-            chunk.append(2)                     // Graph chunk
-            chunk.append(sequenceID)
-            chunk.append(UInt8(chunkIndex))
-            chunk.append(UInt8(totalChunks))
-
-            chunk.append(
-                payload.subdata(
-                    in: start..<end
-                )
-            )
-
-            chunks.append(chunk)
-        }
-
-        return chunks
-    }
-    
-    func sendGraphNotifications() {
-
-        guard BLESettings.isEnabled else {
-            return
-        }
-
-        guard peripheralManager.state == .poweredOn else {
-            return
-        }
-
-        guard let glucoseGraphCharacteristic else {
-            return
-        }
-
-        guard let currentGraphData else {
-            return
-        }
-
-        guard !graphSubscribers.isEmpty else {
-            return
-        }
-
-        let graphPayload =
-            currentGraphData.encoded()
-
-        for central in graphSubscribers.values {
-
-            let maxLength =
-                central.maximumUpdateValueLength
-
-            let chunks = makeGraphChunks(
-                payload: graphPayload,
-                maximumUpdateValueLength: maxLength
-            )
-
-            print(
-                "BLE graph sending \(graphPayload.count) bytes " +
-                "as \(chunks.count) chunks, MTU payload \(maxLength)"
-            )
-
-            for chunk in chunks {
-
-                let queued =
-                    peripheralManager.updateValue(
-                        chunk,
-                        for: glucoseGraphCharacteristic,
-                        onSubscribedCentrals: [central]
-                    )
-
-                if !queued {
-
-                    print(
-                        "BLE graph queue full — saving remaining chunks"
-                    )
-
-                    pendingGraphChunks.append(chunk)
-
-                    if let index = chunks.firstIndex(of: chunk) {
-                        pendingGraphChunks.append(
-                            contentsOf:
-                                chunks.dropFirst(index + 1)
-                        )
-                    }
-
-                    return
-                }
-            }
-        }
-    }
-    
 }
 
 // MARK: - Private BLE lifecycle
@@ -637,34 +323,9 @@ private extension BLEManager {
         liveDataCharacteristic = nil
         pendingNotification = nil
         lastNotifiedPacket = nil
-        
-        glucoseGraphCharacteristic = nil
-        currentGraphData = nil
-        graphSubscribers.removeAll()
-        pendingGraphChunks.removeAll()
-        
         isServiceAdded = false
     }
-    
-    func updatePhoneBattery() {
-        let batteryLevel = UIDevice.current.batteryLevel
 
-        guard batteryLevel >= 0 else {
-            currentLiveData.phoneBatteryPercent =
-                LoopLiveData.unknownBatteryPercent
-            return
-        }
-
-        let percentage = Int(
-            (batteryLevel * 100).rounded()
-        )
-
-        currentLiveData.phoneBatteryPercent =
-            UInt8(
-                clamping: percentage
-            )
-    }
-    
     func setupService() {
         
         guard BLESettings.isEnabled else {
@@ -680,33 +341,21 @@ private extension BLEManager {
             peripheralManager.stopAdvertising()
             peripheralManager.removeAllServices()
         
-        let liveCharacteristic = CBMutableCharacteristic(
+        let characteristic = CBMutableCharacteristic(
             type: BLEUUIDs.liveData,
             properties: [.read, .notify],
             value: nil,
             permissions: [.readable]
         )
 
-            liveDataCharacteristic = liveCharacteristic
+            liveDataCharacteristic = characteristic
 
-        let graphCharacteristic = CBMutableCharacteristic(
-            type: BLEUUIDs.glucoseGraph,
-            properties: [.read, .notify],
-            value: nil,
-            permissions: [.readable]
-        )
-
-        glucoseGraphCharacteristic = graphCharacteristic
-        
             let service = CBMutableService(
                 type: BLEUUIDs.liveDataService,
                 primary: true
             )
 
-            service.characteristics = [
-                liveCharacteristic,
-                graphCharacteristic
-            ]
+            service.characteristics = [characteristic]
 
             print("Adding BLE service: \(BLEUUIDs.liveDataService.uuidString)"
             )
@@ -813,7 +462,6 @@ private extension BLEManager {
                 "IOB: \(Double(currentLiveData.iobHundredths) / 100.0)\n" +
                 "COB: \(currentLiveData.cob)\n" +
                 "Closed Loop: \(currentLiveData.loopClosed)\n" +
-                "Battery: \(currentLiveData.phoneBatteryPercent) %\n" +
                 "-----------------------------------------\n"
                     )
         } else {
